@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e694c16fb3563a498b09601d303e858, type: 3}
+  m_Name: BaseGeneration
+  m_EditorClassIdentifier: 
+  Grass: {fileID: 1901911034279994, guid: ad94be5d83cb9634b88b4c8c2b285a38, type: 3}
+  Water: {fileID: 1560994748941806, guid: 0a5ea1f0f6483cb4b8fc7aa699e75621, type: 3}
+  Sand: {fileID: 1112311431705844, guid: f525432574b7e694bab071a82b1d126d, type: 3}
+  Swamp: {fileID: 1928123463396898, guid: cc3d253145e892e4eb9e249c0195c8b8, type: 3}
+  Rocks: {fileID: 1209033865668100, guid: 359aa194fd3e53741bb02655919e0873, type: 3}
+  Enemy: {fileID: 1535652536708680, guid: 772e4262ebdc8ff4aa573b97dac6eae7, type: 3}
+  tiles:
+    list:
+    - item: 0
+      weight: 5
+    - item: 1
+      weight: 2
+    - item: 2
+      weight: 2
+    - item: 3
+      weight: 3
+    - item: 4
+      weight: 1

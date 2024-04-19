@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c2b99f1a853a32459c266a959f907fd, type: 3}
+  m_Name: Minor Potion of Health
+  m_EditorClassIdentifier: 
+  cardArt: {fileID: 21300000, guid: 1596ce10979230c4eba5169c4c90f895, type: 3}
+  cardName: Minor Potion of Health
+  description: Gain 3 health
+  damage: 0
+  restoreValue: 3
+  manaCost: 0
+  staminaCost: 0
+  cost: 1
+  statusEffect: {fileID: 0}
+  cardType: 9
+  attackType: 0
+  restoreType: 0
