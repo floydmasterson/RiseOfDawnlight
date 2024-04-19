@@ -26,27 +26,15 @@ public class ComabtManager : MonoBehaviour
 	public int enemyHealthMax = 5;
 
 
-	[SerializeField, TabGroup("Text")]
-	private TMP_Text playerHealthText;
-	[SerializeField, TabGroup("Text")]
-	private TMP_Text playerManaText;
-	[SerializeField, TabGroup("Text")]
-	private TMP_Text playerStaminaText;
-	[SerializeField, TabGroup("Text")]
-	private TMP_Text enemyHealthText;
-	[SerializeField, TabGroup("Text")]
+
+	[SerializeField, TabGroup("Turn")]
 	private GameObject passHighLight;
-
-
-
 	[SerializeField, TabGroup("Turn")]
 	private int roundCount;
 	[SerializeField, TabGroup("Turn")]
 	private TMP_Text roundText;
-
 	[SerializeField, TabGroup("Turn")]
 	private int actionLimit = 3;
-
 	[SerializeField, TabGroup("Turn"), ProgressBar(0, "actionLimit", 0, 1, 0, Segmented = true)]
 	public int actionLeft;
 	[SerializeField, TabGroup("Turn")]
@@ -60,6 +48,8 @@ public class ComabtManager : MonoBehaviour
 
 	[SerializeField] HealthBar playerBar;
 	[SerializeField] HealthBar enemyBar;
+	[SerializeField] MeterScript manaTrack;
+	[SerializeField] MeterScript staminaTrack;
 	private void Awake()
 	{
 		actionLeft = actionLimit;
@@ -68,6 +58,8 @@ public class ComabtManager : MonoBehaviour
 		enemyHealthMax = enemy.maxHealth;
 		enemyBar.SetBar(enemyHealthMax);
 		playerBar.SetBar(playerHealthMax);
+		manaTrack.SetMaxValue(playerManaMax);
+		staminaTrack.SetMaxValue(playerStaminaMax);
 		enemyCardContorl.enemy = enemy;
 		playerCardContorl.StartUp();
 		enemyCardContorl.StartUp();
@@ -153,6 +145,7 @@ public class ComabtManager : MonoBehaviour
 					return true;
 				case CardSO.RestoreType.Stamina:
 					playerStamina += card.restoreValue;
+					staminaTrack.SetValue(playerStamina, playerStaminaMax);
 					actionLeft--;
 					UpdateText();
 					UpdateLog("Willow", TextLine.TextType.Potion, card);
@@ -160,6 +153,7 @@ public class ComabtManager : MonoBehaviour
 					return true;
 				case CardSO.RestoreType.Mana:
 					playerMana += card.restoreValue;
+					manaTrack.SetValue(playerMana, playerManaMax);
 					actionLeft--;
 					UpdateText();
 					UpdateLog("Willow", TextLine.TextType.Potion, card);
@@ -173,6 +167,7 @@ public class ComabtManager : MonoBehaviour
 		if (card.attackType == CardSO.AttackType.Magic && playerMana >= card.manaCost)
 		{
 			playerMana -= card.manaCost;
+			manaTrack.SetValue(playerMana, playerManaMax);
 			enemyHealth -= card.damage;
 			actionLeft--;
 			UpdateText();
@@ -183,6 +178,7 @@ public class ComabtManager : MonoBehaviour
 		else if (card.attackType == CardSO.AttackType.Melee && playerStamina >= card.staminaCost)
 		{
 			playerStamina -= card.staminaCost;
+			staminaTrack.SetValue(playerStamina, playerStaminaMax);
 			enemyHealth -= card.damage;
 			actionLeft--;
 			UpdateText();
@@ -240,10 +236,6 @@ public class ComabtManager : MonoBehaviour
 	}
 	public void UpdateText()
 	{
-		playerHealthText.text = $"Player Health:{playerHealth} / {playerHealthMax}";
-		playerManaText.text = $"Player Mana:{playerMana} / {playerManaMax}";
-		playerStaminaText.text = $"Player Stamina:{playerStamina} / {playerStaminaMax}";
-		enemyHealthText.text = $"Enemy Health:{enemyHealth} / {enemyHealthMax}";
 		actionsText.text = $"Actions Left: {actionLeft}";
 		roundText.text = $"Round {roundCount}";
 	}
