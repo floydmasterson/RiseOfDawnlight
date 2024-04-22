@@ -11,7 +11,6 @@ public class CardMasterControl : MonoBehaviour
 		private int currentIndex = 0;
 		public void ComabtStart()
 		{
-
 			ListRandomizer.Shuffle(deck);
 		}
 		public CardSO DrawCard()
@@ -185,7 +184,7 @@ public class CardMasterControl : MonoBehaviour
 		{
 			foreach (CardSO card in cardsInHand)
 			{
-				if (_comabtManager.enemyHealth > _comabtManager.enemyHealthMax / 2)
+				if (_comabtManager.enemy.MaxHealth > _comabtManager.enemy.MaxHealth / 2)
 				{
 					if (card.cardType == CardSO.CardType.Potion && card.restoreType == CardSO.RestoreType.Health)
 					{
@@ -253,6 +252,7 @@ public class CardMasterControl : MonoBehaviour
 		{
 			handManager.Setup(this, cardPrefab, deckManager, handTransfrom, fanSpread, cardSpaceing, verticalSpaceing, startingHandSize, maxHandSize);
 			deckManager.deck = deck;
+			deckManager.ComabtStart();
 			handManager.CombatBegin(combatManager);
 			UpdateHand();
 
@@ -263,6 +263,7 @@ public class CardMasterControl : MonoBehaviour
 			
 			deck = enemy.CopyDeck();
 			deckManager.deck = deck;
+			deckManager.ComabtStart();
 			enemyHandManager.CombatBegin(combatManager);
 			UpdateHand();
 		}

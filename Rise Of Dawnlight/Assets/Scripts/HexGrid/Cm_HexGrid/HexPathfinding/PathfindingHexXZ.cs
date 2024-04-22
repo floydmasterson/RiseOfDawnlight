@@ -47,7 +47,7 @@ namespace CM_Pathfinding {
                 List<Vector3> vectorPath = new List<Vector3>();
                 foreach (PathNodeHexXZ pathNode in path) {
                     Vector3 basePath = grid.GetWorldPosition(pathNode.x, pathNode.y);
-                    basePath.y = .28f;
+                    basePath.y = .7f;
 					vectorPath.Add(basePath);
                     //vectorPath.Add(new Vector3(pathNode.x, pathNode.y) * grid.GetCellSize() + Vector3.one * grid.GetCellSize() * .5f);
                 }

@@ -6,26 +6,6 @@ using static CombatLog;
 
 public class ComabtManager : MonoBehaviour
 {
-	[SerializeField, TabGroup("Stats")]
-	private int playerHealth = 5;
-	[SerializeField, TabGroup("Stats")]
-	private int playerMana = 5;
-	[SerializeField, TabGroup("Stats")]
-	private int playerStamina = 5;
-	[SerializeField, TabGroup("Stats")]
-	public int enemyHealth = 5;
-
-
-	[SerializeField, TabGroup("Stats")]
-	private int playerHealthMax = 5;
-	[SerializeField, TabGroup("Stats")]
-	private int playerManaMax = 5;
-	[SerializeField, TabGroup("Stats")]
-	private int playerStaminaMax = 5;
-	[SerializeField, TabGroup("Stats")]
-	public int enemyHealthMax = 5;
-
-
 
 	[SerializeField, TabGroup("Turn")]
 	private GameObject passHighLight;
@@ -40,55 +20,59 @@ public class ComabtManager : MonoBehaviour
 	[SerializeField, TabGroup("Turn")]
 	private TMP_Text actionsText;
 
-	[SerializeField] private EnemyStatSO enemy;
 
-	public CardMasterControl playerCardContorl;
-	public CardMasterControl enemyCardContorl;
+	public PlayerManager player;
+	public EnemyManager enemy;
+
 	[SerializeField] private CombatLog combatLog;
+	[SerializeField] private MeterScript manaTrack;
+	[SerializeField] private MeterScript staminaTrack;
 
-	[SerializeField] HealthBar playerBar;
-	[SerializeField] HealthBar enemyBar;
-	[SerializeField] MeterScript manaTrack;
-	[SerializeField] MeterScript staminaTrack;
-	private void Awake()
+	[SerializeField] private Button playButton;
+	[SerializeField] private Button drawButton;
+	private void Start()
 	{
 		actionLeft = actionLimit;
 		roundCount++;
-		enemyHealth = enemy.maxHealth;
-		enemyHealthMax = enemy.maxHealth;
-		enemyBar.SetBar(enemyHealthMax);
-		playerBar.SetBar(playerHealthMax);
-		manaTrack.SetMaxValue(playerManaMax);
-		staminaTrack.SetMaxValue(playerStaminaMax);
-		enemyCardContorl.enemy = enemy;
-		playerCardContorl.StartUp();
-		enemyCardContorl.StartUp();
-		
+		SetStats();
+		playButton.onClick.AddListener(delegate { player.cardContorl.Play(); });
+		drawButton.onClick.AddListener(delegate { player.cardContorl.DrawToHand(); });
+		player.cardContorl.StartUp();
+		enemy.cardContorl.StartUp();
 		UpdateText();
 	}
 
 	private void Update()
 	{
-		if(actionLeft == 0) 
+		if (actionLeft == 0)
 		{
 			passHighLight.SetActive(true);
 		}
-		else if(actionLeft > 0)
+		else if (actionLeft > 0)
 		{
 			passHighLight.SetActive(false);
 		}
-	
+
 	}
 	private void EnemyTurn()
 	{
+		if (player.currentEffects != null)
+		{
+			foreach (StatusEffectSO statusEffect in enemy.currentEffects)
+			{
+				statusEffect.StatusEffect();
+				if (statusEffect.LogEntry() != string.Empty)
+					UpdateLog(extraText: statusEffect.LogEntry());
+			}
+		}
 
 		actionLeft = actionLimit;
-		enemyCardContorl.enemyHandManager.DrawToHand(2);
-		enemyCardContorl.UpdateHand();
-		while(actionLeft > 0)
+		enemy.cardContorl.enemyHandManager.DrawToHand(2);
+		enemy.cardContorl.UpdateHand();
+		while (actionLeft > 0)
 		{
 
-			CardSO cardToPlay = enemyCardContorl.enemyHandManager.PickCard();
+			CardSO cardToPlay = enemy.cardContorl.enemyHandManager.PickCard();
 			if (cardToPlay != null)
 			{
 				enemyCardPlayed(cardToPlay);
@@ -111,7 +95,7 @@ public class ComabtManager : MonoBehaviour
 		EnemyTurn();
 	}
 
- private void EnemyPass()
+	private void EnemyPass()
 	{
 		actionLeft = 0;
 		UpdateLog(extraText: $"{enemy.name} Passed");
@@ -121,76 +105,90 @@ public class ComabtManager : MonoBehaviour
 	{
 		roundCount++;
 		actionLeft = actionLimit;
-		playerMana += 1;
-		playerStamina += 1;
-		playerCardContorl.handManager.DrawToHand(2,true);
-		playerCardContorl.UpdateHand();
+		if (player.currentEffects != null)
+		{
+			foreach (StatusEffectSO statusEffect in player.currentEffects)
+			{
+				statusEffect.StatusEffect();
+				UpdateLog(extraText: statusEffect.LogEntry());
+			}
+		}
+		player.cardContorl.handManager.DrawToHand(2, true);
+		player.cardContorl.UpdateHand();
 		UpdateText();
 	}
 	public bool playerCardPlayed(CardSO card)
 	{
 		if (actionLeft <= 0)
 			return false;
-		
+
 		if (card.cardType == CardSO.CardType.Potion)
 		{
 			switch (card.restoreType)
 			{
 				case CardSO.RestoreType.Health:
-					playerHealth += card.restoreValue;
+					player.Heal(card.restoreValue);
 					actionLeft--;
 					UpdateText();
 					UpdateLog("Willow", TextLine.TextType.Potion, card);
-					playerBar.UpdateHealth(playerHealth, playerHealthMax);
+					player.healthBar.UpdateHealth(player.CurrentHealth, player.MaxHealth);
 					return true;
 				case CardSO.RestoreType.Stamina:
-					playerStamina += card.restoreValue;
-					staminaTrack.SetValue(playerStamina, playerStaminaMax);
+					player.UpdateResource(card.restoreValue, 1);
+					staminaTrack.SetValue(player.MaxStamina, player.MaxStamina);
 					actionLeft--;
 					UpdateText();
 					UpdateLog("Willow", TextLine.TextType.Potion, card);
-					
+
 					return true;
 				case CardSO.RestoreType.Mana:
-					playerMana += card.restoreValue;
-					manaTrack.SetValue(playerMana, playerManaMax);
+					player.UpdateResource(card.restoreValue, 0);
+					manaTrack.SetValue(player.CurrentMana, player.MaxMana);
 					actionLeft--;
 					UpdateText();
 					UpdateLog("Willow", TextLine.TextType.Potion, card);
 					return true;
 			}
 		}
-		if(card.cardType == CardSO.CardType.Item)
+		if (card.cardType == CardSO.CardType.Item)
 		{
 			return true;
 		}
-		if (card.attackType == CardSO.AttackType.Magic && playerMana >= card.manaCost)
+		if (card.attackType == CardSO.AttackType.Magic && player.CurrentMana >= card.manaCost)
 		{
-			playerMana -= card.manaCost;
-			manaTrack.SetValue(playerMana, playerManaMax);
-			enemyHealth -= card.damage;
-			actionLeft--;
-			UpdateText();
-			UpdateLog("Willow", TextLine.TextType.Attack, card, defender:enemy.name);
-			enemyBar.UpdateHealth(enemyHealth, enemyHealthMax);
-			return true;
-		}
-		else if (card.attackType == CardSO.AttackType.Melee && playerStamina >= card.staminaCost)
-		{
-			playerStamina -= card.staminaCost;
-			staminaTrack.SetValue(playerStamina, playerStaminaMax);
-			enemyHealth -= card.damage;
+			player.UpdateResource(-card.manaCost, 0);
+			manaTrack.SetValue(player.CurrentMana, player.MaxMana);
+			enemy.TakeDamage(card.damage);
+			if (card.statusEffect != null)
+			{
+				card.statusEffect.ApplyEffect(enemy);
+			}
 			actionLeft--;
 			UpdateText();
 			UpdateLog("Willow", TextLine.TextType.Attack, card, defender: enemy.name);
-			enemyBar.UpdateHealth(enemyHealth, enemyHealthMax);
+			enemy.healthBar.UpdateHealth(enemy.CurrentHealth, enemy.MaxHealth);
+			return true;
+		}
+		else if (card.attackType == CardSO.AttackType.Melee && player.CurrentStamina >= card.staminaCost)
+		{
+			player.UpdateResource(-card.staminaCost, 1);
+			staminaTrack.SetValue(player.CurrentStamina, player.MaxStamina);
+			enemy.TakeDamage(card.damage);
+			if (card.statusEffect != null)
+			{
+				card.statusEffect.ApplyEffect(enemy);
+			}
+			actionLeft--;
+			UpdateText();
+			UpdateLog("Willow", TextLine.TextType.Attack, card, defender: enemy.name);
+			enemy.healthBar.UpdateHealth(enemy.CurrentHealth, enemy.MaxHealth);
 			return true;
 		}
 		Debug.Log($"{card.name} is unplayable");
 		return false;
 
 	}
-	public bool enemyCardPlayed(CardSO card)
+	private bool enemyCardPlayed(CardSO card)
 	{
 		if (actionLeft <= 0)
 			return false;
@@ -200,11 +198,11 @@ public class ComabtManager : MonoBehaviour
 			switch (card.restoreType)
 			{
 				case CardSO.RestoreType.Health:
-					enemyHealth += card.restoreValue;
+					enemy.Heal(card.restoreValue);
 					actionLeft--;
 					UpdateText();
 					UpdateLog(enemy.name, TextLine.TextType.Potion, card);
-					enemyBar.UpdateHealth(enemyHealth, enemyHealthMax);
+					enemy.healthBar.UpdateHealth(enemy.CurrentHealth, enemy.MaxHealth);
 					return true;
 			}
 		}
@@ -214,20 +212,20 @@ public class ComabtManager : MonoBehaviour
 		}
 		if (card.attackType == CardSO.AttackType.Magic)
 		{
-			playerHealth -= card.damage;
+			player.TakeDamage(card.damage);
 			actionLeft--;
 			UpdateText();
 			UpdateLog(enemy.name, TextLine.TextType.Attack, card, defender: "Willow");
-			playerBar.UpdateHealth(playerHealth, playerHealthMax);
+			player.healthBar.UpdateHealth(player.CurrentHealth, player.MaxHealth);
 			return true;
 		}
 		else if (card.attackType == CardSO.AttackType.Melee)
 		{
-			playerHealth -= card.damage;
+			player.TakeDamage(card.damage);
 			actionLeft--;
 			UpdateText();
 			UpdateLog(enemy.name, TextLine.TextType.Attack, card, defender: "Willow");
-			playerBar.UpdateHealth(playerHealth, playerHealthMax);
+			player.healthBar.UpdateHealth(player.CurrentHealth, player.MaxHealth);
 			return true;
 		}
 		Debug.Log($"{card.name} is unplayable");
@@ -239,11 +237,19 @@ public class ComabtManager : MonoBehaviour
 		actionsText.text = $"Actions Left: {actionLeft}";
 		roundText.text = $"Round {roundCount}";
 	}
-	public void UpdateLog(string user = "", TextLine.TextType type = 0, CardSO cardData = null, string extraText = "", string defender = "")
+	private void UpdateLog(string user = "", TextLine.TextType type = 0, CardSO cardData = null, string extraText = "", string defender = "")
 	{
 		TextData textData = combatLog.CreateTextData(user, defender, cardData, extraText);
 		TextLine textLine = combatLog.CreateLog(type, textData);
 		combatLog.UpdateLog(textLine);
 	}
+	private void SetStats()
+	{
+		enemy.healthBar.SetBar(enemy.MaxHealth);
+		player.healthBar.SetBar(player.MaxHealth);
+		manaTrack.SetMaxValue(player.MaxMana);
+		staminaTrack.SetMaxValue(player.MaxStamina);
+	}
+
 }
 
