@@ -5,24 +5,19 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
 
-	public enum StatusEffects
-	{
-		Bleed,
-		Cursed,
-		Burn,
-		Dazed,
-		Knocked_Down,
-		Poisoned,
-	}
+	
 
 	[SerializeField] public Slider healthBar;
-	[SerializeField] private Camera targetCamera;
+	 private Camera targetCamera;
 	[SerializeField] private Transform target;
 	[SerializeField] private Vector3 offset;
 	[SerializeField] private TextMeshProUGUI healthText;
 	[SerializeField] private GameObject[] statusEffects;
 
-
+	private void Awake()
+	{
+		targetCamera = Camera.main;
+	}
 	public void SetBar(int maxHealth)
 	{
 		healthBar.maxValue = maxHealth;
@@ -38,11 +33,13 @@ public class HealthBar : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		if(targetCamera == null)
+			targetCamera = Camera.main;
 		transform.rotation = targetCamera.transform.rotation;
 		transform.position = target.position + offset;
 	}
 
-	public void ToggleStatus(StatusEffects effectNumber, bool state)
+	public void ToggleStatus(StatusEffectSO.StatusEffects effectNumber, bool state)
 	{
 		statusEffects[(int)effectNumber].SetActive(state);
 	}

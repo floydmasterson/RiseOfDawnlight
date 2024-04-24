@@ -12,13 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c2b99f1a853a32459c266a959f907fd, type: 3}
   m_Name: Whirlwind
   m_EditorClassIdentifier: 
+  cardArt: {fileID: 21300000, guid: 7693c5f0d98e12a41912aafdbc12c14f, type: 3}
   cardName: Whirlwind
   description: Knocked Down
   damage: 1
+  restoreValue: 0
   manaCost: 2
   staminaCost: 0
   cost: 0
-  statusEffect: {fileID: 0}
-  cardArt: {fileID: 21300000, guid: 7693c5f0d98e12a41912aafdbc12c14f, type: 3}
+  statusEffect: {fileID: 11400000, guid: 9f3ecfe0a1441444cb7cbe6e2065510f, type: 2}
   cardType: 0
   attackType: 2
+  restoreType: 0

@@ -4,55 +4,14 @@ using UnityEngine;
 
 public class PlayerManager : EntityManager
 {
-	public enum Class
-	{
-		Mage,
-		Warrior,
-		Rouge,
-		Paladin,
-	}
-	[EnumToggleButtons]
-	public Class selectedClass;
-	public CardMasterControl cardContorl;
-	public List<StatusEffectSO> currentEffects = new List<StatusEffectSO>();
-	public HealthBar healthBar;
-
 	#region Stats
 	[TabGroup("Health")]
-	public bool isAlive = true;
-	private int _maxHealth;
 	private int _maxMana;
 	private int _maxStamina;
-	[SerializeField, TabGroup("Health"), ProgressBar(0, "MaxHealth", 1, 0, 0)]
-	private int _currentHealth;
 	[SerializeField, TabGroup("Mana"), ProgressBar(0, "MaxMana", 0, 0, 1)]
 	private int _currentMana;
 	[SerializeField, TabGroup("Stamina"), ProgressBar(0, "MaxStamina", 0, 1, 0)]
 	private int _currentStamina;
-
-	[TabGroup("Health")]
-	public int CurrentHealth
-	{
-		get { return _currentHealth; }
-		set
-		{
-			_currentHealth = value;
-			if (_currentHealth > MaxHealth)
-			{
-				_currentHealth = MaxHealth;
-			}
-			if (_currentHealth < 0 && !isAlive)
-			{
-				_currentHealth = 0;
-			}
-		}
-	}
-	[TabGroup("Health")]
-	public int MaxHealth
-	{
-		get { return _maxHealth; }
-		set { _maxHealth = value; }
-	}
 
 	[TabGroup("Mana")]
 	public int CurrentMana
@@ -102,6 +61,15 @@ public class PlayerManager : EntityManager
 		set { _maxStamina = value; }
 	}
 	#endregion
+	public enum Class
+	{
+		Mage,
+		Warrior,
+		Rouge,
+		Paladin,
+	}
+	[TabGroup("Setup"), EnumToggleButtons]
+	public Class selectedClass;
 
 	private void Awake()
 	{
@@ -113,22 +81,22 @@ public class PlayerManager : EntityManager
 		switch (selectedClass)
 		{
 			case Class.Mage:
-				_maxHealth = 8;
+				MaxHealth = 8;
 				_maxMana = 10;
 				_maxStamina = 4;
 				break;
 			case Class.Warrior:
-				_maxHealth = 12;
+				MaxHealth = 12;
 				_maxMana = 4;
 				_maxStamina = 10;
 				break;
 			case Class.Rouge:
-				_maxHealth = 8;
+				MaxHealth = 8;
 				_maxMana = 7;
 				_maxStamina = 7;
 				break;
 			case Class.Paladin:
-				_maxHealth = 10;
+				MaxHealth = 10;
 				_maxMana = 6;
 				_maxStamina = 8;
 				break;
@@ -149,7 +117,13 @@ public class PlayerManager : EntityManager
 	}
 	public override void ApplyStatus(StatusEffectSO statusEffect)
 	{
-		if (currentEffects.Contains(statusEffect) == false)
+		int foundCount = 0;
+		foreach (StatusEffectSO effect in currentEffects)
+		{
+			if (effect.effectNumber == statusEffect.effectNumber)
+				foundCount++;
+		}
+		if (foundCount == 0)
 			currentEffects.Add(statusEffect);
 	}
 	public override void RemoveStatus(StatusEffectSO statusEffect)

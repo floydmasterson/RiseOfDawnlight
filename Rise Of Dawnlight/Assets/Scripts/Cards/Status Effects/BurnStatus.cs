@@ -5,14 +5,11 @@ using static UnityEngine.EventSystems.EventTrigger;
 [CreateAssetMenu(fileName = "New Burn Effect", menuName = "Status Effects/Burn")]
 public class BurnStatus : StatusEffectSO
 {
-	public EntityManager target;
 	private int damage;
-	[SerializeField] private int duration;
-	[SerializeField, EnumToggleButtons] private HealthBar.StatusEffects effect;
 
 	public override void ApplyEffect(EntityManager entity)
 	{
-		entity.gameObject.GetComponentInChildren<HealthBar>().ToggleStatus(effect, true);
+		entity.healthBar.ToggleStatus(effectNumber, true);
 		entity.ApplyStatus(GetCopy(entity));
 	}
 
@@ -20,13 +17,14 @@ public class BurnStatus : StatusEffectSO
 	{
 		BurnStatus burnEffect = Instantiate(this);
 		burnEffect.target = entity;
+		burnEffect.entityName = burnEffect.target.enityName;
 		return burnEffect;
 	}
 
 	public override string LogEntry()
 	{
 		if (damage > 0)
-			return $"Fire burns {target.gameObject.name} for {damage} damage.";
+			return $"Fire burns {entityName} for {damage} damage.";
 		else
 			return string.Empty;
 	}
@@ -40,8 +38,7 @@ public class BurnStatus : StatusEffectSO
 		}
 		else
 		{
-			target.gameObject.GetComponentInChildren<HealthBar>().ToggleStatus(effect, false);
-			target.RemoveStatus(this);
+			target.healthBar.ToggleStatus(effectNumber, false);
 		}
 	}
 

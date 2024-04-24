@@ -22,11 +22,11 @@ MonoBehaviour:
     list:
     - item: 0
       weight: 5
-    - item: 1
-      weight: 2
     - item: 2
       weight: 2
     - item: 3
-      weight: 3
+      weight: 2
+    - item: 1
+      weight: 1
     - item: 4
       weight: 1

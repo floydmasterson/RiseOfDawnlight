@@ -66,9 +66,11 @@ public class MovePositionHexPathfinding : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-        HexTileHenerationSettings.TileType tileType = other.GetComponentInParent<HexTile>().tileType;
+        GameObject collidedHex = other.transform.gameObject;
+		HexTileHenerationSettings.TileType tileType = collidedHex.transform.parent.gameObject.GetComponent<HexTile>().tileType;
         if(tileType == HexTileHenerationSettings.TileType.Enemy)
         {
+            collidedHex.GetComponent<EnemyHex>().TriggerFight();
             pathIndex = -1;
         }
 	}

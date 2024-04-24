@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestingHexGrid : MonoBehaviour
+public class HexGrid : MonoBehaviour
 {
 
 
@@ -25,7 +25,9 @@ public class TestingHexGrid : MonoBehaviour
 
 	[SerializeField] private EnemySpanwer enemySpanwer;
 
-	
+	public GameMaster gameMaster;
+
+	public Transform gridHolder;
 
 	
 
@@ -45,7 +47,7 @@ public class TestingHexGrid : MonoBehaviour
 
 	}
 
-	private void Awake()
+	private void Start()
 	{
 		enemySpanwer.gridSpawner = this;
 		gridHexXZ = new GridHexXZ<GridObject>(width, height, cellSize, Vector3.zero, (GridHexXZ<GridObject> g, int x, int y) => new GridObject());
@@ -72,6 +74,7 @@ public class TestingHexGrid : MonoBehaviour
 
 				gridHexXZ.GetGridObject(x, z).visualTransform = visualTransform;
 				gridHexXZ.GetGridObject(x, z).Hide();
+				tile.transform.SetParent(gridHolder);
 			}
 		}
 		enemySpanwer.SpawnEnemy();

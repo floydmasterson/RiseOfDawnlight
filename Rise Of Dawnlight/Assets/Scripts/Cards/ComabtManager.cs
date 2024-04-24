@@ -6,6 +6,7 @@ using static CombatLog;
 
 public class ComabtManager : MonoBehaviour
 {
+	public GameMaster gameMaster;
 
 	[SerializeField, TabGroup("Turn")]
 	private GameObject passHighLight;
@@ -20,25 +21,40 @@ public class ComabtManager : MonoBehaviour
 	[SerializeField, TabGroup("Turn")]
 	private TMP_Text actionsText;
 
-
+	[TabGroup("Fighters")]
 	public PlayerManager player;
+	[TabGroup("Fighters")]
 	public EnemyManager enemy;
+	[SerializeField, TabGroup("Fighters")]
+	private Transform enemySpawnLocation;
 
-	[SerializeField] private CombatLog combatLog;
-	[SerializeField] private MeterScript manaTrack;
-	[SerializeField] private MeterScript staminaTrack;
 
-	[SerializeField] private Button playButton;
-	[SerializeField] private Button drawButton;
-	private void Start()
+	[SerializeField, TabGroup("Fight Tracking")]
+	private CombatLog combatLog;
+	[SerializeField, TabGroup("Fight Tracking")]
+	private MeterScript manaTrack;
+	[SerializeField, TabGroup("Fight Tracking")]
+	private MeterScript staminaTrack;
+
+	[SerializeField, TabGroup("Turn")]
+	private Button playButton;
+	[SerializeField, TabGroup("Turn")]
+	private Button drawButton;
+
+
+	public void BeginFight(GameObject reciveEnemy)
 	{
+		GameObject createdEnemy = Instantiate(reciveEnemy, enemySpawnLocation);
+		enemy = createdEnemy.GetComponent<EnemyManager>();
 		actionLeft = actionLimit;
 		roundCount++;
-		SetStats();
 		playButton.onClick.AddListener(delegate { player.cardContorl.Play(); });
 		drawButton.onClick.AddListener(delegate { player.cardContorl.DrawToHand(); });
-		player.cardContorl.StartUp();
+		enemy.SetBaseStats();
+		enemy.cardContorl.combatManager = this;
 		enemy.cardContorl.StartUp();
+		player.cardContorl.StartUp();
+		SetStats();
 		UpdateText();
 	}
 
@@ -56,17 +72,24 @@ public class ComabtManager : MonoBehaviour
 	}
 	private void EnemyTurn()
 	{
-		if (player.currentEffects != null)
+		actionLeft = actionLimit;
+		if (enemy.currentEffects != null)
 		{
 			foreach (StatusEffectSO statusEffect in enemy.currentEffects)
 			{
-				statusEffect.StatusEffect();
-				if (statusEffect.LogEntry() != string.Empty)
-					UpdateLog(extraText: statusEffect.LogEntry());
+				if (statusEffect.duration > 0)
+				{
+					statusEffect.StatusEffect();
+					if (statusEffect.LogEntry() != string.Empty)
+						UpdateLog(extraText: statusEffect.LogEntry());
+				}
+				else
+				{
+					enemy.RemoveStatus(statusEffect);
+				}
 			}
 		}
 
-		actionLeft = actionLimit;
 		enemy.cardContorl.enemyHandManager.DrawToHand(2);
 		enemy.cardContorl.UpdateHand();
 		while (actionLeft > 0)
@@ -87,18 +110,16 @@ public class ComabtManager : MonoBehaviour
 
 		EnemyPass();
 	}
-
 	public void Pass()
 	{
 		actionLeft = 0;
 		UpdateLog(extraText: "Willow Passed");
 		EnemyTurn();
 	}
-
 	private void EnemyPass()
 	{
 		actionLeft = 0;
-		UpdateLog(extraText: $"{enemy.name} Passed");
+		UpdateLog(extraText: $"{enemy.enityName} Passed");
 		NewRound();
 	}
 	private void NewRound()
@@ -109,8 +130,16 @@ public class ComabtManager : MonoBehaviour
 		{
 			foreach (StatusEffectSO statusEffect in player.currentEffects)
 			{
-				statusEffect.StatusEffect();
-				UpdateLog(extraText: statusEffect.LogEntry());
+				if (statusEffect.duration > 0)
+				{
+					statusEffect.StatusEffect();
+					if (statusEffect.LogEntry() != string.Empty)
+						UpdateLog(extraText: statusEffect.LogEntry());
+				}
+				else
+				{
+					player.RemoveStatus(statusEffect);
+				}
 			}
 		}
 		player.cardContorl.handManager.DrawToHand(2, true);
@@ -130,7 +159,7 @@ public class ComabtManager : MonoBehaviour
 					player.Heal(card.restoreValue);
 					actionLeft--;
 					UpdateText();
-					UpdateLog("Willow", TextLine.TextType.Potion, card);
+					UpdateLog(player.enityName, TextLine.TextType.Potion, card);
 					player.healthBar.UpdateHealth(player.CurrentHealth, player.MaxHealth);
 					return true;
 				case CardSO.RestoreType.Stamina:
@@ -138,7 +167,7 @@ public class ComabtManager : MonoBehaviour
 					staminaTrack.SetValue(player.MaxStamina, player.MaxStamina);
 					actionLeft--;
 					UpdateText();
-					UpdateLog("Willow", TextLine.TextType.Potion, card);
+					UpdateLog(player.enityName, TextLine.TextType.Potion, card);
 
 					return true;
 				case CardSO.RestoreType.Mana:
@@ -146,7 +175,7 @@ public class ComabtManager : MonoBehaviour
 					manaTrack.SetValue(player.CurrentMana, player.MaxMana);
 					actionLeft--;
 					UpdateText();
-					UpdateLog("Willow", TextLine.TextType.Potion, card);
+					UpdateLog(player.enityName, TextLine.TextType.Potion, card);
 					return true;
 			}
 		}
@@ -165,7 +194,7 @@ public class ComabtManager : MonoBehaviour
 			}
 			actionLeft--;
 			UpdateText();
-			UpdateLog("Willow", TextLine.TextType.Attack, card, defender: enemy.name);
+			UpdateLog(player.enityName, TextLine.TextType.Attack, card, defender: enemy.enityName);
 			enemy.healthBar.UpdateHealth(enemy.CurrentHealth, enemy.MaxHealth);
 			return true;
 		}
@@ -180,7 +209,7 @@ public class ComabtManager : MonoBehaviour
 			}
 			actionLeft--;
 			UpdateText();
-			UpdateLog("Willow", TextLine.TextType.Attack, card, defender: enemy.name);
+			UpdateLog(player.enityName, TextLine.TextType.Attack, card, defender: enemy.enityName);
 			enemy.healthBar.UpdateHealth(enemy.CurrentHealth, enemy.MaxHealth);
 			return true;
 		}
@@ -201,7 +230,7 @@ public class ComabtManager : MonoBehaviour
 					enemy.Heal(card.restoreValue);
 					actionLeft--;
 					UpdateText();
-					UpdateLog(enemy.name, TextLine.TextType.Potion, card);
+					UpdateLog(enemy.enityName, TextLine.TextType.Potion, card);
 					enemy.healthBar.UpdateHealth(enemy.CurrentHealth, enemy.MaxHealth);
 					return true;
 			}
@@ -213,18 +242,26 @@ public class ComabtManager : MonoBehaviour
 		if (card.attackType == CardSO.AttackType.Magic)
 		{
 			player.TakeDamage(card.damage);
+			if (card.statusEffect != null)
+			{
+				card.statusEffect.ApplyEffect(player);
+			}
 			actionLeft--;
 			UpdateText();
-			UpdateLog(enemy.name, TextLine.TextType.Attack, card, defender: "Willow");
+			UpdateLog(enemy.enityName, TextLine.TextType.Attack, card, defender: player.enityName);
 			player.healthBar.UpdateHealth(player.CurrentHealth, player.MaxHealth);
 			return true;
 		}
 		else if (card.attackType == CardSO.AttackType.Melee)
 		{
 			player.TakeDamage(card.damage);
+			if (card.statusEffect != null)
+			{
+				card.statusEffect.ApplyEffect(player);
+			}
 			actionLeft--;
 			UpdateText();
-			UpdateLog(enemy.name, TextLine.TextType.Attack, card, defender: "Willow");
+			UpdateLog(enemy.enityName, TextLine.TextType.Attack, card, defender: player.enityName);
 			player.healthBar.UpdateHealth(player.CurrentHealth, player.MaxHealth);
 			return true;
 		}

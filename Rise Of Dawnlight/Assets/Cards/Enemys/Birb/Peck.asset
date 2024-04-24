@@ -9,9 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59e40b431975bc24e86a15d7101979c3, type: 3}
-  m_Name: Burn
+  m_Script: {fileID: 11500000, guid: 2c2b99f1a853a32459c266a959f907fd, type: 3}
+  m_Name: Peck
   m_EditorClassIdentifier: 
-  effectNumber: 2
-  target: {fileID: 0}
-  duration: 3
+  cardArt: {fileID: 0}
+  cardName: Peck
+  description: 
+  damage: 2
+  restoreValue: 2
+  manaCost: 0
+  staminaCost: 0
+  cost: 1
+  statusEffect: {fileID: 0}
+  cardType: 0
+  attackType: 1
+  restoreType: 0
