@@ -118,6 +118,7 @@ MonoBehaviour:
   enemySpawnLocation: {fileID: 7495449084265770864}
   selcetedEnemy: {fileID: 0}
   gameMaster: {fileID: 0}
+  fightTrigger: {fileID: 1265766649299297368}
   enemys:
     list:
     - item: {fileID: 2642432626898646685, guid: ed1aab3988ad9fd44bbe6be0b6448513, type: 3}

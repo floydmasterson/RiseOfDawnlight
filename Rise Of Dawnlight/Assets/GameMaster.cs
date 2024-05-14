@@ -18,11 +18,17 @@ public class GameMaster : MonoBehaviour
 		hexGid.gameMaster = this;
 		enemySpanwer.gameMaster = this;
 	}
-	public void TrasitionToFight(GameObject enemy)
+	public void TrasitionToFight(EnemyHex enemy)
 	{
 		Debug.Log($"Trigger fight with {enemy.name}");
 		board.SetActive(false);
 		table.SetActive(true);
 		comabtManager.BeginFight(enemy);
+	}
+
+	public void TranistionOutOfFight()
+	{
+		table.SetActive(false);
+		board.SetActive(true);
 	}
 }

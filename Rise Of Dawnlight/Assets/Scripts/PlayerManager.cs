@@ -24,7 +24,7 @@ public class PlayerManager : EntityManager
 			{
 				_currentMana = MaxMana;
 			}
-			if (_currentMana < 0 && !isAlive)
+			if (_currentMana < 0)
 			{
 				_currentMana = 0;
 			}
@@ -48,7 +48,7 @@ public class PlayerManager : EntityManager
 			{
 				_currentStamina = MaxStamina;
 			}
-			if (_currentStamina < 0 && !isAlive)
+			if (_currentStamina < 0)
 			{
 				_currentStamina = 0;
 			}
@@ -144,4 +144,19 @@ public class PlayerManager : EntityManager
 		}
 	}
 
+	public void PostFightReset()
+	{
+		CurrentHealth = MaxHealth;
+		CurrentMana = MaxMana;
+		CurrentStamina = MaxStamina;
+		cardContorl.PostFightCleanUp();
+		if(currentEffects.Count > 0)
+		{
+			foreach (StatusEffectSO effect in currentEffects)
+			{
+				healthBar.ToggleStatus(effect.effectNumber, false);
+			}
+			currentEffects.Clear();
+		}
+	}
 }

@@ -13,8 +13,6 @@ public abstract class EntityManager : MonoBehaviour
 	public CardMasterControl cardContorl;
 	[TabGroup("Health")]
 
-	[TabGroup("Health")]
-	public bool isAlive = true;
 	private int _maxHealth;
 	[SerializeField, TabGroup("Health"), ProgressBar(0, "MaxHealth", 1, 0, 0)]
 	private int _currentHealth;
@@ -29,7 +27,7 @@ public abstract class EntityManager : MonoBehaviour
 			{
 				_currentHealth = MaxHealth;
 			}
-			if (_currentHealth < 0 && !isAlive)
+			if (_currentHealth < 0)
 			{
 				_currentHealth = 0;
 			}

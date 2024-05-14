@@ -37,6 +37,7 @@ public class EnemySpanwer : MonoBehaviour
 			enemyHex.gameMaster = gameMaster;
 			Vector3 spawnLocation = enemyHex.enemySpawnLocation.position;
 			GameObject monster = Instantiate(enemyHex.SelectEnemy(), spawnLocation, Quaternion.identity);
+			enemyHex.SpawnedEnemy = monster;
 			monster.transform.localScale = new Vector3(.15f, .15f, .15f);
 			monster.transform.SetParent(selctedHex.transform);
 		}

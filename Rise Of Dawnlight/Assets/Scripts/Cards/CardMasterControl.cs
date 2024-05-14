@@ -275,12 +275,20 @@ public class CardMasterControl : MonoBehaviour
 		if (deckManager != null && fightDeck != deckManager.fightDeck)
 			fightDeck = deckManager.fightDeck;
 	}
+	private void Awake()
+	{
+		if (deckManager == null)
+			deckManager = new DeckManager();
+		if (handManager == null && !isEnemy)
+			handManager = new HandManager();
+		if (enemyHandManager == null && isEnemy)
+			enemyHandManager = new EnemyHandManager();
+	}
 	public void StartUp()
 	{
-		deckManager = new DeckManager();
+
 		if (!isEnemy)
 		{
-			handManager = new HandManager();
 			handManager.Setup(this, cardPrefab, deckManager, handTransfrom, fanSpread, cardSpaceing, verticalSpaceing, startingHandSize, maxHandSize);
 			deckManager.masterDeck = masterDeck;
 			deckManager.ComabtStart();
@@ -290,7 +298,6 @@ public class CardMasterControl : MonoBehaviour
 		}
 		else if (isEnemy)
 		{
-			enemyHandManager = new EnemyHandManager();
 			enemyHandManager.Setup(deckManager, startingHandSize, maxHandSize);
 			masterDeck = enemy.CopyDeck();
 			deckManager.masterDeck = masterDeck;
@@ -307,9 +314,12 @@ public class CardMasterControl : MonoBehaviour
 
 	public void DrawToHand()
 	{
-		handManager.DrawToHand(2, false);
-		combatManager.UpdateText();
-		UpdateHand();
+		if (combatManager.actionLeft > 0)
+		{
+			handManager.DrawToHand(2, false);
+			combatManager.UpdateText();
+			UpdateHand();
+		}
 	}
 
 	public void UpdateHand()
@@ -322,5 +332,19 @@ public class CardMasterControl : MonoBehaviour
 		{
 			enemyCardsInHand = enemyHandManager.cardsInHand;
 		}
+	}
+
+	public void PostFightCleanUp()
+	{
+		foreach (GameObject cards in playerCardsInHand)
+		{
+			Destroy(cards);
+
+		}
+		playerCardsInHand.Clear();
+		enemyCardsInHand.Clear();
+		handManager.selectedCard = null;
+		handManager.cardsInHand.Clear();
+		deckManager.fightDeck.Clear();
 	}
 }

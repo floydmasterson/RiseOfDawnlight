@@ -1,4 +1,6 @@
 using Sirenix.OdinInspector;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +9,7 @@ using static CombatLog;
 public class ComabtManager : MonoBehaviour
 {
 	public GameMaster gameMaster;
+	public EnemyHex enemyHex;
 
 	[SerializeField, TabGroup("Turn")]
 	private GameObject passHighLight;
@@ -27,6 +30,8 @@ public class ComabtManager : MonoBehaviour
 	public EnemyManager enemy;
 	[SerializeField, TabGroup("Fighters")]
 	private Transform enemySpawnLocation;
+	[SerializeField, TabGroup("Fighters")]
+	private GameObject spawnedEnemy;
 
 
 	[SerializeField, TabGroup("Fight Tracking")]
@@ -41,15 +46,54 @@ public class ComabtManager : MonoBehaviour
 	[SerializeField, TabGroup("Turn")]
 	private Button drawButton;
 
+	[SerializeField, TabGroup("Post Fight")]
+	private GameObject postScreenText;
+	[SerializeField, TabGroup("Post Fight")]
+	private TMP_Text winText;
+	[SerializeField, TabGroup("Post Fight")]
+	private TMP_Text countDown;
 
-	public void BeginFight(GameObject reciveEnemy)
+	private bool timerGo = false;
+	private float remainingTime;
+
+	private void OnEnable()
 	{
-		GameObject createdEnemy = Instantiate(reciveEnemy, enemySpawnLocation);
+		playButton.onClick.AddListener(delegate { player.cardContorl.Play(); });
+		drawButton.onClick.AddListener(delegate { player.cardContorl.DrawToHand(); });
+	}
+
+	private void OnDisable()
+	{
+		playButton.onClick.RemoveAllListeners(); 
+		drawButton.onClick.RemoveAllListeners();
+	}
+
+	public IEnumerator PostFightScreen(string winner)
+	{
+		actionLeft = 0;
+		winText.text = $"{winner} has won!";
+		postScreenText.SetActive(true);
+		timerGo = true;
+		yield return new WaitForSeconds(4);
+		enemyHex.fightTrigger.enabled = false;
+		player.PostFightReset();
+		postScreenText.SetActive(false);
+		Destroy(enemyHex.SpawnedEnemy);
+		Destroy(spawnedEnemy);
+		timerGo = false;
+		combatLog.ClearLog();
+		gameMaster.TranistionOutOfFight();
+	}
+
+	public void BeginFight(EnemyHex reciveEnemyHex)
+	{
+		enemyHex = reciveEnemyHex;
+		GameObject recivedEnemy = enemyHex.selcetedEnemy.GetComponent<EnemyData>().tableEnemy;
+		GameObject createdEnemy = Instantiate(recivedEnemy, enemySpawnLocation);
+		spawnedEnemy = createdEnemy;
 		enemy = createdEnemy.GetComponent<EnemyManager>();
 		actionLeft = actionLimit;
 		roundCount++;
-		playButton.onClick.AddListener(delegate { player.cardContorl.Play(); });
-		drawButton.onClick.AddListener(delegate { player.cardContorl.DrawToHand(); });
 		enemy.SetBaseStats();
 		enemy.cardContorl.combatManager = this;
 		enemy.cardContorl.StartUp();
@@ -60,6 +104,22 @@ public class ComabtManager : MonoBehaviour
 
 	private void Update()
 	{
+		if (timerGo == true)
+		{
+			if (remainingTime == 0)
+				remainingTime = 4;
+			if (remainingTime > 0)
+			{
+				remainingTime -= Time.deltaTime;
+			}
+			else if (remainingTime < 0)
+			{
+				remainingTime = 0;
+			}
+			int minutes = Mathf.FloorToInt(remainingTime / 60);
+			int seconds = Mathf.FloorToInt(remainingTime % 60);
+			countDown.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+		}
 		if (actionLeft == 0)
 		{
 			passHighLight.SetActive(true);
@@ -68,30 +128,13 @@ public class ComabtManager : MonoBehaviour
 		{
 			passHighLight.SetActive(false);
 		}
-
+		DeathCheck();
 	}
 	private void EnemyTurn()
 	{
 		actionLeft = actionLimit;
-		if (enemy.currentEffects != null)
-		{
-			foreach (StatusEffectSO statusEffect in enemy.currentEffects)
-			{
-				if (statusEffect.duration > 0)
-				{
-					statusEffect.StatusEffect();
-					if (statusEffect.LogEntry() != string.Empty)
-						UpdateLog(extraText: statusEffect.LogEntry());
-				}
-				else
-				{
-					enemy.RemoveStatus(statusEffect);
-				}
-			}
-		}
+		CheckStatusEffects(enemy);
 
-		enemy.cardContorl.enemyHandManager.DrawToHand(2);
-		enemy.cardContorl.UpdateHand();
 		while (actionLeft > 0)
 		{
 
@@ -126,24 +169,8 @@ public class ComabtManager : MonoBehaviour
 	{
 		roundCount++;
 		actionLeft = actionLimit;
-		if (player.currentEffects != null)
-		{
-			foreach (StatusEffectSO statusEffect in player.currentEffects)
-			{
-				if (statusEffect.duration > 0)
-				{
-					statusEffect.StatusEffect();
-					if (statusEffect.LogEntry() != string.Empty)
-						UpdateLog(extraText: statusEffect.LogEntry());
-				}
-				else
-				{
-					player.RemoveStatus(statusEffect);
-				}
-			}
-		}
-		player.cardContorl.handManager.DrawToHand(2, true);
-		player.cardContorl.UpdateHand();
+		CheckStatusEffects(player);
+		DrawForTurn(player);
 		UpdateText();
 	}
 	public bool playerCardPlayed(CardSO card)
@@ -288,5 +315,61 @@ public class ComabtManager : MonoBehaviour
 		staminaTrack.SetMaxValue(player.MaxStamina);
 	}
 
+	private void CheckStatusEffects(EntityManager entity)
+	{
+
+		if (entity.currentEffects != null)
+		{
+			List<StatusEffectSO> effectsToRemove = new List<StatusEffectSO>();
+			foreach (StatusEffectSO statusEffect in entity.currentEffects)
+			{
+				if (statusEffect.duration > 0)
+				{
+					statusEffect.StatusEffect();
+					if (statusEffect.LogEntry() != string.Empty)
+						UpdateLog(extraText: statusEffect.LogEntry());
+				}
+				else
+				{
+					effectsToRemove.Add(statusEffect);
+				}
+			}
+			if (effectsToRemove.Count > 0)
+			{
+				foreach (StatusEffectSO effectToBeRemoved in effectsToRemove)
+				{
+					entity.RemoveStatus(effectToBeRemoved);
+				}
+			}
+		}
+		entity.healthBar.UpdateHealth(entity.CurrentHealth, entity.MaxHealth);
+	}
+
+	private void DrawForTurn(EntityManager entity)
+	{
+		if (entity is PlayerManager)
+		{
+			entity.cardContorl.handManager.DrawToHand(2, true);
+			entity.cardContorl.UpdateHand();
+
+		}
+		else if (entity is EntityManager)
+		{
+			entity.cardContorl.enemyHandManager.DrawToHand(2);
+			entity.cardContorl.UpdateHand();
+		}
+	}
+
+	private void DeathCheck()
+	{
+		if (player.CurrentHealth <= 0)
+		{
+			StartCoroutine(PostFightScreen(enemy.enityName));
+		}
+		else if (enemy.CurrentHealth <= 0)
+		{
+			StartCoroutine(PostFightScreen(player.enityName));
+		}
+	}
 }
 

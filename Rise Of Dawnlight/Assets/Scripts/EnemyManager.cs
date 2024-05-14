@@ -52,4 +52,5 @@ public class EnemyManager : EntityManager
 	{
 		currentEffects.Remove(statusEffect);
 	}
+
 }

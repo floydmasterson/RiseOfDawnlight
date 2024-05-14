@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class EnemyHex : MonoBehaviour
 {
+	public GameMaster gameMaster;
     public Transform enemySpawnLocation;
 	public GameObject selcetedEnemy;
-	public GameMaster gameMaster;
+	public Collider fightTrigger;
+	public GameObject SpawnedEnemy;
 	[SerializeField] private WeightedRandomList<GameObject> enemys;
 
 	public GameObject SelectEnemy()
@@ -18,6 +20,6 @@ public class EnemyHex : MonoBehaviour
 
 	public void TriggerFight()
 	{
-		gameMaster.TrasitionToFight(selcetedEnemy.GetComponent<EnemyData>().tableEnemy);
+		gameMaster.TrasitionToFight(this);
 	}
 }

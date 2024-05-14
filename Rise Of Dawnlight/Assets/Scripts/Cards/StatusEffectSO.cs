@@ -17,6 +17,7 @@ public abstract class StatusEffectSO : ScriptableObject
 	[SerializeField, EnumToggleButtons]
 	public StatusEffects effectNumber;
 	public int duration;
+	[Title("Runtime Variables")]
 	public EntityManager target;
 	public string entityName;
 	public abstract void StatusEffect();

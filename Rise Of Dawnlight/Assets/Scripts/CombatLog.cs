@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -91,7 +92,6 @@ public class CombatLog : MonoBehaviour
 		log.GetComponentInChildren<TextMeshProUGUI>().text = textLog.text;
 		log.transform.SetParent(contentView.transform);
 
-		// Scroll the log to the bottom
 		ScrollLogToBottom();
 	}
 
@@ -125,5 +125,13 @@ public class CombatLog : MonoBehaviour
 	{
 		Canvas.ForceUpdateCanvases(); // Ensure canvas updates before scrolling
 		scrollRect.normalizedPosition = new Vector2(0, 0); // Scroll to the bottom
+	}
+
+	public void ClearLog()
+	{
+		for (int i = 0; i < contentView.transform.childCount; i++)
+		{
+			Destroy(contentView.transform.GetChild(i).gameObject);
+		}
 	}
 }
