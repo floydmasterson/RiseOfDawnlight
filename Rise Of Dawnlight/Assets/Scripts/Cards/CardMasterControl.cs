@@ -207,6 +207,11 @@ public class CardMasterControl : MonoBehaviour
 	public HandManager handManager;
 	public DeckManager deckManager;
 	public EnemyHandManager enemyHandManager;
+<<<<<<< Updated upstream
+=======
+	[SerializeField] private GameObject currentCard;
+
+>>>>>>> Stashed changes
 	public ComabtManager combatManager;
 	public List<CardSO> deck = new List<CardSO>();
 	[SerializeField, TitleGroup("Enemy")]
@@ -236,9 +241,30 @@ public class CardMasterControl : MonoBehaviour
 	[SerializeField, TabGroup("Hand Manager/Split/Paramaters", "Hand Limits")]
 	private int maxHandSize = 7;
 
+<<<<<<< Updated upstream
+=======
 
 
+	private void OnValidate()
+	{
+		if (playerCardsInHand.Count > 0)
+			playerCardsInHand.Clear();
+>>>>>>> Stashed changes
 
+
+<<<<<<< Updated upstream
+
+=======
+	private void Update()
+	{
+		if (deckManager != null && fightDeck != deckManager.fightDeck)
+			fightDeck = deckManager.fightDeck;
+		if (!isEnemy && handManager.selectedCard != null && currentCard != handManager.selectedCard)
+		{
+			currentCard = handManager.selectedCard;
+		}
+	}
+>>>>>>> Stashed changes
 	private void Awake()
 	{
 		deckManager = new DeckManager();

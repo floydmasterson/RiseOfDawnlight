@@ -35,11 +35,20 @@ public class CardDisplay : MonoBehaviour
 		damageText.text = cardData.damage.ToString();
 		switch(cardData.cardType)
 		{
+			case CardSO.CardType.Blank:
+				cardBackground[0].SetActive(true);
+				break;
 			case CardSO.CardType.BaseMagic:
 				cardBackground[1].SetActive(true);
 				break;
 			case CardSO.CardType.BaseMelee:
 				cardBackground[2].SetActive(true);
+				break;
+			case CardSO.CardType.BaseMagicFocus:
+				cardBackground[3].SetActive(true);
+				break;
+			case CardSO.CardType.BaseMeleeFocus:
+				cardBackground[4].SetActive(true);
 				break;
 			case CardSO.CardType.Magic:
 				cardBackground[3].SetActive(true);

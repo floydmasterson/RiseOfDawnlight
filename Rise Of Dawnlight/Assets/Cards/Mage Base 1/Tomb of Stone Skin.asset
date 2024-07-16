@@ -16,9 +16,11 @@ MonoBehaviour:
   cardName: Tomb of Stone Skin
   description: +3 Defense
   damage: 0
+  restoreValue: 0
   manaCost: 0
   staminaCost: 0
   cost: 1
   statusEffect: {fileID: 0}
-  cardType: 8
+  cardType: 11
   attackType: 0
+  restoreType: 0

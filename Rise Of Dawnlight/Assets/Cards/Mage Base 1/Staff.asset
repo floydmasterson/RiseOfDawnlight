@@ -21,6 +21,6 @@ MonoBehaviour:
   staminaCost: 1
   cost: 0
   statusEffect: {fileID: 0}
-  cardType: 1
+  cardType: 2
   attackType: 1
   restoreType: 0
