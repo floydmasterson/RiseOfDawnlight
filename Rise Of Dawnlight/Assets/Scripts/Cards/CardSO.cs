@@ -35,6 +35,7 @@ public class CardSO : ScriptableObject
 
 	public enum CardType
 	{
+		Blank,
 		BaseMagic,
 		BaseMelee,
 		BaseMagicFocus,

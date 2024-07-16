@@ -226,7 +226,7 @@ public class CardMasterControl : MonoBehaviour
 	public HandManager handManager;
 	public DeckManager deckManager;
 	public EnemyHandManager enemyHandManager;
-
+	[SerializeField] private GameObject currentCard;
 	public ComabtManager combatManager;
 
 	public List<CardSO> masterDeck = new List<CardSO>();
@@ -261,20 +261,30 @@ public class CardMasterControl : MonoBehaviour
 	[SerializeField, TabGroup("Hand Manager/Split/Paramaters", "Hand Limits")]
 	private int maxHandSize = 7;
 
+
 	private void OnValidate()
 	{
 		if (playerCardsInHand.Count > 0)
 			playerCardsInHand.Clear();
 
+
 		if (enemyCardsInHand.Count > 0)
 			enemyCardsInHand.Clear();
 	}
+
 
 	private void Update()
 	{
 		if (deckManager != null && fightDeck != deckManager.fightDeck)
 			fightDeck = deckManager.fightDeck;
 	}
+
+		if (!isEnemy && handManager.selectedCard != null && currentCard != handManager.selectedCard)
+		{
+			currentCard = handManager.selectedCard;
+		}
+	}
+
 	private void Awake()
 	{
 		if (deckManager == null)

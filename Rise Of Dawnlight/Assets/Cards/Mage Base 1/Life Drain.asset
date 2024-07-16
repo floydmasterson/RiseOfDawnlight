@@ -12,13 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c2b99f1a853a32459c266a959f907fd, type: 3}
   m_Name: Life Drain
   m_EditorClassIdentifier: 
+  cardArt: {fileID: 21300000, guid: 3819d47d9907619478ca8701eef0d4c1, type: 3}
   cardName: Life Drain
   description: Enemy loses 3 health you gain 3 health
   damage: 3
+  restoreValue: 0
   manaCost: 2
   staminaCost: 0
   cost: 1
   statusEffect: {fileID: 0}
-  cardArt: {fileID: 21300000, guid: 3819d47d9907619478ca8701eef0d4c1, type: 3}
-  cardType: 2
+  cardType: 3
   attackType: 2
+  restoreType: 0
