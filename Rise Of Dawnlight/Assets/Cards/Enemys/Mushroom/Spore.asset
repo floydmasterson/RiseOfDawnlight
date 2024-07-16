@@ -20,7 +20,7 @@ MonoBehaviour:
   manaCost: 0
   staminaCost: 0
   cost: 1
-  statusEffect: {fileID: 0}
+  statusEffect: {fileID: 11400000, guid: 658bbf0668a3a5c4da7b28a32c4466d8, type: 2}
   cardType: 4
   attackType: 2
   restoreType: 0

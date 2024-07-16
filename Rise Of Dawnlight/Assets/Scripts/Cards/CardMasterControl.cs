@@ -7,29 +7,37 @@ public class CardMasterControl : MonoBehaviour
 	public class DeckManager
 	{
 
-		public List<CardSO> deck = new List<CardSO>();
+		public List<CardSO> masterDeck = new List<CardSO>();
+		public List<CardSO> fightDeck = new List<CardSO>();
 		private int currentIndex = 0;
 		public void ComabtStart()
 		{
-
-			ListRandomizer.Shuffle(deck);
+			fightDeck.Clear();
+			fightDeck = CopyDeck();
+			ListRandomizer.Shuffle(fightDeck);
 		}
 		public CardSO DrawCard()
 		{
-			if (deck.Count == 0)
+			if (fightDeck.Count == 0)
 			{
 				return null;
 			}
 
-			CardSO nextCard = deck[currentIndex];
-			deck.Remove(nextCard);
-			currentIndex = (currentIndex + 1) % deck.Count;
-			return nextCard;
+			CardSO nextCard = fightDeck[currentIndex];
+			fightDeck.Remove(nextCard);
+			if (fightDeck.Count > 0)
+			{
+				currentIndex = (currentIndex + 1) % fightDeck.Count;
+				return nextCard;
+
+			}
+			else
+				return null;
 		}
 		public List<CardSO> CopyDeck()
 		{
 			List<CardSO> deckCopy = new List<CardSO>();
-			foreach (CardSO card in deck)
+			foreach (CardSO card in masterDeck)
 			{
 				deckCopy.Add(card);
 			}
@@ -71,6 +79,8 @@ public class CardMasterControl : MonoBehaviour
 		public void CombatBegin(ComabtManager comabtManager)
 		{
 			_comabtManager = comabtManager;
+			if (cardsInHand != null)
+				cardsInHand.Clear();
 			DrawToHand(startingHandSize, true);
 
 		}
@@ -79,17 +89,20 @@ public class CardMasterControl : MonoBehaviour
 		{
 			for (int i = 0; i < drawAmount; i++)
 			{
-				if (cardsInHand.Count <= maxHandSize && _comabtManager.actionLeft > 0 && deckManager.deck.Count > 0)
+				if (cardsInHand.Count <= maxHandSize && _comabtManager.actionLeft > 0 && deckManager.fightDeck.Count > 0)
 				{
 					CardSO cardData = deckManager.DrawCard();
-					GameObject newCard = Instantiate(cardPrefab, handTransfrom.position, Quaternion.identity, handTransfrom);
-					newCard.name = cardData.name;
-					cardsInHand.Add(newCard);
-					CardDisplay cardDisplay = newCard.GetComponent<CardDisplay>();
-					cardDisplay.cardData = cardData;
-					CardMovement cardMovment = newCard.GetComponent<CardMovement>();
-					cardMovment.handManager = cardMasterControl.handManager;
-					cardDisplay.UpdateCardDisplay();
+					if (cardData != null)
+					{
+						GameObject newCard = Instantiate(cardPrefab, handTransfrom.position, Quaternion.identity, handTransfrom);
+						newCard.name = cardData.name;
+						cardsInHand.Add(newCard);
+						CardDisplay cardDisplay = newCard.GetComponent<CardDisplay>();
+						cardDisplay.cardData = cardData;
+						CardMovement cardMovment = newCard.GetComponent<CardMovement>();
+						cardMovment.handManager = cardMasterControl.handManager;
+						cardDisplay.UpdateCardDisplay();
+					}
 
 					UpdateHand();
 
@@ -153,7 +166,7 @@ public class CardMasterControl : MonoBehaviour
 		private int maxHandSize = 7;
 		[PropertyOrder(1)]
 		public List<CardSO> cardsInHand = new List<CardSO>();
-		private ComabtManager _comabtManager;
+		public ComabtManager _comabtManager;
 
 		public void Setup(DeckManager _deckManager, int _startingHandSize, int _maxHandSize)
 		{
@@ -172,7 +185,7 @@ public class CardMasterControl : MonoBehaviour
 		{
 			for (int i = 0; i < drawAmount; i++)
 			{
-				if (cardsInHand.Count <= maxHandSize && deckManager.deck.Count > 0)
+				if (cardsInHand.Count <= maxHandSize && deckManager.fightDeck.Count > 0)
 				{
 					CardSO cardData = deckManager.DrawCard();
 					cardsInHand.Add(cardData);
@@ -183,21 +196,27 @@ public class CardMasterControl : MonoBehaviour
 
 		public CardSO PickCard()
 		{
-			foreach (CardSO card in cardsInHand)
+			if (cardsInHand.Count > 0)
 			{
-				if (_comabtManager.enemyHealth > _comabtManager.enemyHealthMax / 2)
+				foreach (CardSO card in cardsInHand)
 				{
-					if (card.cardType == CardSO.CardType.Potion && card.restoreType == CardSO.RestoreType.Health)
+					if (_comabtManager.enemy.MaxHealth > _comabtManager.enemy.MaxHealth / 2)
 					{
+						if (card.cardType == CardSO.CardType.Potion && card.restoreType == CardSO.RestoreType.Health)
+						{
+							cardsInHand.Remove(card);
+							return card;
+						}
+					}
+					if (card.attackType != CardSO.AttackType.None)
+					{
+						cardsInHand.Remove(card);
 						return card;
 					}
 				}
-				if (card.attackType != CardSO.AttackType.None)
-				{
-					return card;
-				}
 			}
 			return null;
+
 
 		}
 
@@ -207,13 +226,12 @@ public class CardMasterControl : MonoBehaviour
 	public HandManager handManager;
 	public DeckManager deckManager;
 	public EnemyHandManager enemyHandManager;
-<<<<<<< Updated upstream
-=======
 	[SerializeField] private GameObject currentCard;
-
->>>>>>> Stashed changes
 	public ComabtManager combatManager;
-	public List<CardSO> deck = new List<CardSO>();
+
+	public List<CardSO> masterDeck = new List<CardSO>();
+	public List<CardSO> fightDeck = new List<CardSO>();
+
 	[SerializeField, TitleGroup("Enemy")]
 	private bool isEnemy = false;
 	[TitleGroup("Enemy"), HideIf("@isEnemy != true")]
@@ -223,8 +241,10 @@ public class CardMasterControl : MonoBehaviour
 	public List<GameObject> playerCardsInHand = new List<GameObject>();
 	[TitleGroup("Hand Manager"), HideIf("@isEnemy != true")]
 	public List<CardSO> enemyCardsInHand = new List<CardSO>();
+
 	[TitleGroup("Hand Manager")]
 	[HorizontalGroup("Hand Manager/Split")]
+
 	[SerializeField, TabGroup("Hand Manager/Split/Paramaters", "Object Setup"), HideIf("@isEnemy == true")]
 	private GameObject cardPrefab;
 	[SerializeField, TabGroup("Hand Manager/Split/Paramaters", "Object Setup"), HideIf("@isEnemy == true")]
@@ -241,44 +261,47 @@ public class CardMasterControl : MonoBehaviour
 	[SerializeField, TabGroup("Hand Manager/Split/Paramaters", "Hand Limits")]
 	private int maxHandSize = 7;
 
-<<<<<<< Updated upstream
-=======
-
 
 	private void OnValidate()
 	{
 		if (playerCardsInHand.Count > 0)
 			playerCardsInHand.Clear();
->>>>>>> Stashed changes
 
 
-<<<<<<< Updated upstream
+		if (enemyCardsInHand.Count > 0)
+			enemyCardsInHand.Clear();
+	}
 
-=======
+
 	private void Update()
 	{
 		if (deckManager != null && fightDeck != deckManager.fightDeck)
 			fightDeck = deckManager.fightDeck;
+	}
+
 		if (!isEnemy && handManager.selectedCard != null && currentCard != handManager.selectedCard)
 		{
 			currentCard = handManager.selectedCard;
 		}
 	}
->>>>>>> Stashed changes
+
 	private void Awake()
 	{
-		deckManager = new DeckManager();
-		if (isEnemy)
-			enemyHandManager = new EnemyHandManager();
-		else
+		if (deckManager == null)
+			deckManager = new DeckManager();
+		if (handManager == null && !isEnemy)
 			handManager = new HandManager();
+		if (enemyHandManager == null && isEnemy)
+			enemyHandManager = new EnemyHandManager();
 	}
 	public void StartUp()
 	{
+
 		if (!isEnemy)
 		{
 			handManager.Setup(this, cardPrefab, deckManager, handTransfrom, fanSpread, cardSpaceing, verticalSpaceing, startingHandSize, maxHandSize);
-			deckManager.deck = deck;
+			deckManager.masterDeck = masterDeck;
+			deckManager.ComabtStart();
 			handManager.CombatBegin(combatManager);
 			UpdateHand();
 
@@ -286,9 +309,9 @@ public class CardMasterControl : MonoBehaviour
 		else if (isEnemy)
 		{
 			enemyHandManager.Setup(deckManager, startingHandSize, maxHandSize);
-			
-			deck = enemy.CopyDeck();
-			deckManager.deck = deck;
+			masterDeck = enemy.CopyDeck();
+			deckManager.masterDeck = masterDeck;
+			deckManager.ComabtStart();
 			enemyHandManager.CombatBegin(combatManager);
 			UpdateHand();
 		}
@@ -301,20 +324,37 @@ public class CardMasterControl : MonoBehaviour
 
 	public void DrawToHand()
 	{
-		handManager.DrawToHand(2, false);
-		combatManager.UpdateText();
-		UpdateHand();
+		if (combatManager.actionLeft > 0)
+		{
+			handManager.DrawToHand(2, false);
+			combatManager.UpdateText();
+			UpdateHand();
+		}
 	}
 
 	public void UpdateHand()
 	{
-		if(handManager != null && playerCardsInHand != handManager.cardsInHand && isEnemy == false)
+		if (handManager != null && playerCardsInHand != handManager.cardsInHand && isEnemy == false)
 		{
 			playerCardsInHand = handManager.cardsInHand;
 		}
-		else if( enemyHandManager != null && enemyCardsInHand != enemyHandManager.cardsInHand && isEnemy == true)
+		else if (enemyHandManager != null && enemyCardsInHand != enemyHandManager.cardsInHand && isEnemy == true)
 		{
 			enemyCardsInHand = enemyHandManager.cardsInHand;
 		}
+	}
+
+	public void PostFightCleanUp()
+	{
+		foreach (GameObject cards in playerCardsInHand)
+		{
+			Destroy(cards);
+
+		}
+		playerCardsInHand.Clear();
+		enemyCardsInHand.Clear();
+		handManager.selectedCard = null;
+		handManager.cardsInHand.Clear();
+		deckManager.fightDeck.Clear();
 	}
 }

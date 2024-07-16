@@ -4,9 +4,9 @@ using UnityEngine;
 public class EnemySpanwer : MonoBehaviour
 {
     // Start is called before the first frame update
-    [SerializeField] private WeightedRandomList<GameObject> monsters;
-	public TestingHexGrid gridSpawner;
+	public HexGrid gridSpawner;
 	[SerializeField] int spawnAmount;
+	public GameMaster gameMaster;
 
 
 	private List<int> usedHexs = new List<int>();
@@ -28,12 +28,16 @@ public class EnemySpanwer : MonoBehaviour
 			usedHexs.Add(hex);
 			GameObject selctedHex = gridSpawner.hexs[hex];
 			HexTile selctedHexTile = selctedHex.GetComponent<HexTile>();
-			GameObject enemyHex = selctedHexTile.ReplaceTileWithEnemy(gridSpawner.gridHexXZ.GetWorldPosition(selctedHexTile.x, selctedHexTile.z), gridSpawner.hexs[hex].transform);
-			Transform visualTransform = enemyHex.transform;
+			GameObject enemyHexTile = selctedHexTile.ReplaceTileWithEnemy(gridSpawner.gridHexXZ.GetWorldPosition(selctedHexTile.x, selctedHexTile.z), gridSpawner.hexs[hex].transform);
+			Transform visualTransform = enemyHexTile.transform;
 			gridSpawner.gridHexXZ.GetGridObject(selctedHexTile.x, selctedHexTile.z).visualTransform = visualTransform;
 			gridSpawner.gridHexXZ.GetGridObject(selctedHexTile.x, selctedHexTile.z).Hide();
-			Vector3 spawnLocation = enemyHex.GetComponent<EnemyHex>().enemySpawnLocation.position;
-			GameObject monster = Instantiate(monsters.GetRandom(), spawnLocation, Quaternion.identity);
+			selctedHex.transform.parent = gridSpawner.gridHolder;
+			EnemyHex enemyHex = enemyHexTile.GetComponent<EnemyHex>();
+			enemyHex.gameMaster = gameMaster;
+			Vector3 spawnLocation = enemyHex.enemySpawnLocation.position;
+			GameObject monster = Instantiate(enemyHex.SelectEnemy(), spawnLocation, Quaternion.identity);
+			enemyHex.SpawnedEnemy = monster;
 			monster.transform.localScale = new Vector3(.15f, .15f, .15f);
 			monster.transform.SetParent(selctedHex.transform);
 		}

@@ -116,6 +116,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySpawnLocation: {fileID: 7495449084265770864}
+  selcetedEnemy: {fileID: 0}
+  gameMaster: {fileID: 0}
+  fightTrigger: {fileID: 1265766649299297368}
+  enemys:
+    list:
+    - item: {fileID: 2642432626898646685, guid: ed1aab3988ad9fd44bbe6be0b6448513, type: 3}
+      weight: 0.3
+    - item: {fileID: 1840077481719174041, guid: ae999bf8951d75547ba20cf7811634b9, type: 3}
+      weight: 0.3
+    - item: {fileID: 458871626426990388, guid: da8830459ba179048909a01f22b6bbe6, type: 3}
+      weight: 0.3
 --- !u!65 &1265766649299297368
 BoxCollider:
   m_ObjectHideFlags: 0

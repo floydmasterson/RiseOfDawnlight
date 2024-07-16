@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CombatLog : MonoBehaviour
 {
+	// Classes for storing text data and determining text type
 	public class TextData
 	{
 		public string extraText;
@@ -19,6 +22,7 @@ public class CombatLog : MonoBehaviour
 			extraText = _extraText;
 		}
 	}
+
 	public class TextLine
 	{
 		public string text;
@@ -29,6 +33,7 @@ public class CombatLog : MonoBehaviour
 			Potion,
 			Attack,
 		}
+
 		public TextType textType;
 
 		public void TextSelect(TextData data)
@@ -46,6 +51,7 @@ public class CombatLog : MonoBehaviour
 					break;
 			}
 		}
+
 		public string CreateBasicText(TextData data)
 		{
 			string createdText = data.extraText;
@@ -59,6 +65,7 @@ public class CombatLog : MonoBehaviour
 			text = createdText;
 			return text;
 		}
+
 		public string CreateAttackerText(TextData data)
 		{
 			string createdText = $"{data.user} played {data.cardData.name} and did {data.cardData.damage} damage to {data.defender}";
@@ -67,22 +74,28 @@ public class CombatLog : MonoBehaviour
 		}
 	}
 
-
+	// Serialized fields for inspector references
 	[SerializeField] private GameObject logPrefab;
 	[SerializeField] private GameObject contentView;
-	[SerializeField] private GameObject logView;
+	[SerializeField] private ScrollRect scrollRect;
 	[SerializeField] private GameObject toggleButton;
+	[SerializeField] private GameObject logView;
 
-	private bool visable = true;
+	// Flag for log visibility
+	private bool visible = true;
 
-
+	// Method to update the combat log
 	public void UpdateLog(TextLine textLog)
 	{
+		// Instantiate log prefab
 		GameObject log = Instantiate(logPrefab);
 		log.GetComponentInChildren<TextMeshProUGUI>().text = textLog.text;
 		log.transform.SetParent(contentView.transform);
+
+		ScrollLogToBottom();
 	}
 
+	// Method to create a log entry
 	public TextLine CreateLog(TextLine.TextType type, TextData data)
 	{
 		TextLine textLine = new TextLine();
@@ -91,6 +104,7 @@ public class CombatLog : MonoBehaviour
 		return textLine;
 	}
 
+	// Method to create text data for a log entry
 	public TextData CreateTextData(string user, string defender, CardSO cardData, string extraText = "")
 	{
 		TextData data = new TextData();
@@ -98,19 +112,26 @@ public class CombatLog : MonoBehaviour
 		return data;
 	}
 
+	// Method to toggle log visibility
 	public void ToggleLog()
 	{
-		if(visable == true)
+		visible = !visible;
+		logView.SetActive(visible);
+		toggleButton.SetActive(!visible);
+	}
+
+	// Method to scroll the log to the bottom
+	private void ScrollLogToBottom()
+	{
+		Canvas.ForceUpdateCanvases(); // Ensure canvas updates before scrolling
+		scrollRect.normalizedPosition = new Vector2(0, 0); // Scroll to the bottom
+	}
+
+	public void ClearLog()
+	{
+		for (int i = 0; i < contentView.transform.childCount; i++)
 		{
-			logView.SetActive(false);
-			toggleButton.SetActive(true);
-			visable = false;
-		}
-		else if( visable == false)
-		{
-			logView.SetActive(true);
-			toggleButton.SetActive(false);
-			visable = true;
+			Destroy(contentView.transform.GetChild(i).gameObject);
 		}
 	}
 }

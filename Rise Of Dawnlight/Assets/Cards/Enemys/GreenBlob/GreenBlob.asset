@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7a1d9b2d7b44c746b1ae45a4d4b7514, type: 3}
+  m_Name: GreenBlob
+  m_EditorClassIdentifier: 
+  maxHealth: 8
+  deck:
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 6613b666d172cf147848ef949e0d691c, type: 2}
+  - {fileID: 11400000, guid: 6613b666d172cf147848ef949e0d691c, type: 2}
+  - {fileID: 11400000, guid: 6613b666d172cf147848ef949e0d691c, type: 2}
+  - {fileID: 11400000, guid: 9314bdac2ebcde042a72141685b30f2c, type: 2}
+  - {fileID: 11400000, guid: 9314bdac2ebcde042a72141685b30f2c, type: 2}

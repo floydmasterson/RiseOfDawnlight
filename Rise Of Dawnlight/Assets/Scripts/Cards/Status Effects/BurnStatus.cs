@@ -1,18 +1,58 @@
-using System.Collections;
-using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
-public class BurnStatus : MonoBehaviour
+[CreateAssetMenu(fileName = "New Burn Effect", menuName = "Status Effects/Burn")]
+public class BurnStatus : StatusEffectSO
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	private int damage;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	public override void ApplyEffect(EntityManager entity)
+	{
+		entity.healthBar.ToggleStatus(effectNumber, true);
+		entity.ApplyStatus(GetCopy(entity));
+	}
+
+	public override StatusEffectSO GetCopy(EntityManager entity)
+	{
+		BurnStatus burnEffect = Instantiate(this);
+		burnEffect.target = entity;
+		burnEffect.entityName = burnEffect.target.enityName;
+		return burnEffect;
+	}
+
+	public override string LogEntry()
+	{
+		if (damage > 0)
+			return $"Fire burns {entityName} for {damage} damage.";
+		else
+			return string.Empty;
+	}
+
+	public override void StatusEffect()
+	{
+		if (duration > 0)
+		{
+			target.TakeDamage(BurnDamage());
+			duration--;
+		}
+		else
+		{
+			target.healthBar.ToggleStatus(effectNumber, false);
+		}
+	}
+
+	private int BurnDamage()
+	{
+		int chance = Random.Range(1, 3);
+		if (chance >= 2)
+		{
+			damage = Random.Range(2, 4);
+		}
+		else
+		{
+			damage = 0;
+		}
+		return damage;
+	}
 }

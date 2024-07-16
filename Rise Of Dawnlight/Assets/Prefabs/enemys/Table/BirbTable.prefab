@@ -166,11 +166,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enityName: Birb
+  isAlive: 1
+  _currentHealth: 8
+  enemyStats: {fileID: 11400000, guid: aef8f97ea8a40d1479c4d310e4db1643, type: 2}
+  cardContorl: {fileID: -4217688649773822726}
+  healthBar: {fileID: 5681519146917963184}
+  currentEffects: []
+
   healthBar: {fileID: 5681519146917963184}
   cardContorl: {fileID: -4217688649773822726}
   _currentHealth: 8
   currentEffects: []
   enemyStats: {fileID: 11400000, guid: aef8f97ea8a40d1479c4d310e4db1643, type: 2}
+
 --- !u!114 &-4217688649773822726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,6 +192,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   combatManager: {fileID: 0}
+  deck:
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 9744aa53321d825498847a18aa8d1fb6, type: 2}
+  - {fileID: 11400000, guid: 8c40ad4651725f047bc7cf8f3e838f0f, type: 2}
+  - {fileID: 11400000, guid: 8c40ad4651725f047bc7cf8f3e838f0f, type: 2}
+  - {fileID: 11400000, guid: 8c40ad4651725f047bc7cf8f3e838f0f, type: 2}
+  - {fileID: 11400000, guid: 7e97fd38ccf1be748a0cb50a23a13b78, type: 2}
+  - {fileID: 11400000, guid: 7e97fd38ccf1be748a0cb50a23a13b78, type: 2}
   masterDeck: []
   fightDeck: []
   isEnemy: 1
@@ -321,7 +340,7 @@ Transform:
   - {fileID: 7341810079569170494}
   m_Father: {fileID: 8192893050166010320}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+
 --- !u!1 &4094842713011347486
 GameObject:
   m_ObjectHideFlags: 0
